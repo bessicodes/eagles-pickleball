@@ -35,10 +35,8 @@ export default function Onboarding() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const authValid =
-    mode === 'email'
-      ? /\S+@\S+\.\S+/.test(email) && password.length >= 6
-      : otpSent && otp.length >= 4;
+  // Test mode: there's no real backend, so any input (or none) gets you in.
+  const authValid = true;
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -50,7 +48,20 @@ export default function Onboarding() {
 
   function finish() {
     haptic([20, 30, 40]);
-    signUp({ name: name.trim(), nickname: nickname.trim(), skill, emoji, avatarUrl });
+    // Fall back to friendly defaults so nothing blocks a test run.
+    signUp({
+      name: name.trim() || 'Guest Player',
+      nickname: nickname.trim() || name.trim().split(' ')[0] || 'Guest',
+      skill,
+      emoji,
+      avatarUrl,
+    });
+  }
+
+  // One-tap entry — skip the whole flow and drop straight into the app.
+  function quickStart() {
+    haptic([20, 30, 40]);
+    signUp({ name: 'Guest Player', nickname: 'Guest', skill: 'Intermediate', emoji: '🦅', avatarUrl: null });
   }
 
   return (
@@ -99,8 +110,14 @@ export default function Onboarding() {
             <Button className="w-full" onClick={() => setStep(1)}>
               Get started →
             </Button>
-            <p className="mt-3 text-center text-xs text-white/30">
-              Replaces NextUp. Built for the Eagles league.
+            <button
+              onClick={quickStart}
+              className="mt-3 w-full text-center text-sm font-medium text-lime/80 underline-offset-4 hover:underline"
+            >
+              Skip — jump in as a guest
+            </button>
+            <p className="mt-2 text-center text-xs text-white/30">
+              Test mode · no account or database needed.
             </p>
           </motion.div>
         )}
@@ -115,7 +132,9 @@ export default function Onboarding() {
           >
             <div className="flex flex-1 flex-col justify-center">
               <h2 className="font-display text-3xl font-semibold text-white">Create your account</h2>
-              <p className="mt-1 text-sm text-white/45">Secure sign-in, powered by Supabase Auth.</p>
+              <p className="mt-1 text-sm text-white/45">
+                Test mode — type anything (or leave it blank) and tap Continue.
+              </p>
 
               <div className="mt-6 flex rounded-pill bg-white/[0.05] p-1">
                 {(['email', 'phone'] as const).map((m) => (
@@ -170,7 +189,6 @@ export default function Onboarding() {
                         <Button
                           variant="ghost"
                           className="!h-[52px] shrink-0 !px-4"
-                          disabled={phone.replace(/\D/g, '').length < 9}
                           onClick={() => {
                             setOtpSent(true);
                             haptic(15);
@@ -301,11 +319,7 @@ export default function Onboarding() {
               <Button variant="ghost" className="!px-6" onClick={() => setStep(1)}>
                 Back
               </Button>
-              <Button
-                className="flex-1"
-                disabled={name.trim().length < 2}
-                onClick={finish}
-              >
+              <Button className="flex-1" onClick={finish}>
                 Enter the league →
               </Button>
             </div>
