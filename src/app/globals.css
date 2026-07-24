@@ -119,3 +119,23 @@ textarea,
 select {
   font-family: inherit;
 }
+
+/* Shared text input (onboarding + profile edit). */
+.ob-input {
+  width: 100%;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 16px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.ob-input:focus {
+  border-color: rgba(214, 255, 0, 0.5);
+}
+.ob-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}

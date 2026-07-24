@@ -79,8 +79,9 @@ interface State {
     name: string;
     nickname: string;
     skill: Player['skill'];
-    emoji: string;
+    emoji?: string;
     avatarUrl?: string | null;
+    accent?: string | null;
   }) => void;
   updateProfile: (patch: Partial<Player>) => void;
   signOut: () => void;
@@ -155,11 +156,13 @@ function applyCompletion(
 
   const players = state.players.map((p) => {
     if (winSet.has(p.id)) {
+      const streak = p.streak + 1;
       return {
         ...p,
         wins: p.wins + 1,
         points: p.points + winPoints,
-        streak: p.streak + 1,
+        streak,
+        bestStreak: Math.max(p.bestStreak ?? 0, streak),
         rating: p.rating + 8,
         tonightWins: p.tonightWins + 1,
         tonightPoints: p.tonightPoints + winPoints,
@@ -319,7 +322,7 @@ export const useStore = create<State>()(
         }));
       },
 
-      signUp: ({ name, nickname, skill, emoji, avatarUrl }) => {
+      signUp: ({ name, nickname, skill, emoji, avatarUrl, accent }) => {
         const id = uid('me');
         const me: Player = {
           id,
@@ -328,11 +331,13 @@ export const useStore = create<State>()(
           skill,
           emoji: emoji || '🦅',
           avatarUrl: avatarUrl ?? null,
+          accent: accent ?? null,
           rating: skill === 'Advanced' ? 1400 : skill === 'Intermediate' ? 1250 : 1150,
           wins: 0,
           losses: 0,
           points: 0,
           streak: 0,
+          bestStreak: 0,
           tonightWins: 0,
           tonightLosses: 0,
           tonightPoints: 0,
@@ -589,11 +594,13 @@ export const useStore = create<State>()(
           skill,
           emoji: '🚶',
           avatarUrl: null,
+          accent: null,
           rating: skill === 'Advanced' ? 1380 : skill === 'Intermediate' ? 1250 : 1150,
           wins: 0,
           losses: 0,
           points: 0,
           streak: 0,
+          bestStreak: 0,
           tonightWins: 0,
           tonightLosses: 0,
           tonightPoints: 0,
@@ -666,7 +673,7 @@ export const useStore = create<State>()(
       },
     }),
     {
-      name: 'eagles-store-v1',
+      name: 'eagles-store-v2',
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         players: s.players,

@@ -58,6 +58,8 @@ export function seedPlayers(): Player[] {
     losses: r.losses,
     points: r.points,
     streak: r.streak,
+    bestStreak: Math.max(r.streak, Math.round(r.wins / 5) + 2),
+    accent: null,
     tonightWins: 0,
     tonightLosses: 0,
     tonightPoints: 0,

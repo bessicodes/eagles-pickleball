@@ -4,71 +4,67 @@ import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '@/lib/store';
 import { Avatar, Button } from './ui';
-import { cn, haptic } from '@/lib/utils';
+import { ACCENTS, cn, fileToSquareDataUrl, haptic } from '@/lib/utils';
 import type { SkillLevel } from '@/lib/types';
 
-const EMOJIS = ['🦅', '🔥', '⚡', '🎾', '🚀', '🌟', '🃏', '🐆', '💎', '🥁', '🌊', '🎯'];
 const SKILLS: SkillLevel[] = ['Beginner', 'Intermediate', 'Advanced'];
 
 /**
- * Signup + onboarding. Auth is a local mock that mirrors Supabase Auth
- * (email+password or phone OTP); the profile step feeds store.signUp().
+ * Two-step onboarding: brand hero → build your player card (photo, name,
+ * nickname, skill, accent). No fake auth screen — there's no backend yet, so
+ * you just make a card and play. Real Supabase Auth slots in later.
  */
 export default function Onboarding() {
   const signUp = useStore((s) => s.signUp);
 
-  const [step, setStep] = useState<0 | 1 | 2>(0);
-  const [mode, setMode] = useState<'email' | 'phone'>('email');
-
-  // auth fields
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState('');
-
-  // profile fields
+  const [step, setStep] = useState<0 | 1>(0);
   const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
   const [skill, setSkill] = useState<SkillLevel>('Intermediate');
-  const [emoji, setEmoji] = useState('🦅');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [accent, setAccent] = useState<string>(ACCENTS[0]);
+  const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Test mode: there's no real backend, so any input (or none) gets you in.
-  const authValid = true;
-
-  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setAvatarUrl(reader.result as string);
-    reader.readAsDataURL(file);
+    setBusy(true);
+    try {
+      const url = await fileToSquareDataUrl(file);
+      setAvatarUrl(url);
+      haptic(12);
+    } catch {
+      // ignore bad files
+    } finally {
+      setBusy(false);
+    }
   }
 
   function finish() {
     haptic([20, 30, 40]);
-    // Fall back to friendly defaults so nothing blocks a test run.
     signUp({
       name: name.trim() || 'Guest Player',
       nickname: nickname.trim() || name.trim().split(' ')[0] || 'Guest',
       skill,
-      emoji,
       avatarUrl,
+      accent,
     });
   }
 
-  // One-tap entry — skip the whole flow and drop straight into the app.
   function quickStart() {
     haptic([20, 30, 40]);
-    signUp({ name: 'Guest Player', nickname: 'Guest', skill: 'Intermediate', emoji: '🦅', avatarUrl: null });
+    signUp({ name: 'Guest Player', nickname: 'Guest', skill: 'Intermediate', accent: ACCENTS[0] });
   }
+
+  const preview = { id: 'me-preview', name: name || 'You', avatarUrl, accent };
 
   return (
     <div className="relative mx-auto flex min-h-dvh w-full max-w-app flex-col px-5 pt-safe pb-safe">
       {/* progress */}
       <div className="mt-4 flex gap-1.5">
-        {[0, 1, 2].map((i) => (
+        {[0, 1].map((i) => (
           <div
             key={i}
             className={cn(
@@ -79,287 +75,178 @@ export default function Onboarding() {
         ))}
       </div>
 
-      <div className="flex flex-1 flex-col">
-        {/* ── Step 0 — Hero ── */}
-        {step === 0 && (
-          <motion.div
-            key="hero"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-1 flex-col"
-          >
-            <div className="flex flex-1 flex-col justify-center">
-              <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-pill border border-white/10 bg-white/[0.04] px-3 py-1.5">
-                <span className="h-2 w-2 rounded-full bg-lime animate-pulseDot" />
-                <span className="eyebrow !text-white/60">Northcliff · Mon &amp; Wed 18:30</span>
-              </div>
-              <h1 className="font-display text-[52px] font-bold leading-[0.95] tracking-tightest text-white">
-                EAGLES
-                <br />
-                <span className="text-lime">PICKLE</span>BALL
-              </h1>
-              <p className="mt-4 max-w-[300px] text-[15px] leading-relaxed text-white/55">
-                Scan, pay R55, get auto-matched into 2v2 games all night. No codes. No slips. Ever.
-              </p>
-              <div className="mt-8 flex items-center gap-4 text-white/40">
-                <Feature icon="⚡" label="Instant match" />
-                <Feature icon="🏆" label="Live ranks" />
-                <Feature icon="🔥" label="Streaks" />
-              </div>
+      {/* ── Step 0 — Hero ── */}
+      {step === 0 && (
+        <motion.div
+          key="hero"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-1 flex-col"
+        >
+          <div className="flex flex-1 flex-col justify-center">
+            <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-pill border border-white/10 bg-white/[0.04] px-3 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-lime animate-pulseDot" />
+              <span className="eyebrow !text-white/60">Northcliff · Mondays &amp; Wednesdays</span>
             </div>
-            <Button className="w-full" onClick={() => setStep(1)}>
-              Get started →
-            </Button>
-            <button
-              onClick={quickStart}
-              className="mt-3 w-full text-center text-sm font-medium text-lime/80 underline-offset-4 hover:underline"
-            >
-              Skip — jump in as a guest
-            </button>
-            <p className="mt-2 text-center text-xs text-white/30">
-              Test mode · no account or database needed.
+            <h1 className="font-display text-[52px] font-bold leading-[0.95] tracking-tightest text-white">
+              EAGLES
+              <br />
+              <span className="text-lime">PICKLE</span>BALL
+            </h1>
+            <p className="mt-4 max-w-[310px] text-[15px] leading-relaxed text-white/55">
+              Club league night, sorted. Check in, get paired with a partner, and climb the ladder —
+              all from your phone.
             </p>
-          </motion.div>
-        )}
-
-        {/* ── Step 1 — Auth ── */}
-        {step === 1 && (
-          <motion.div
-            key="auth"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-1 flex-col"
+            <div className="mt-8 flex items-center gap-4 text-white/40">
+              <Feature label="Auto-matched" />
+              <Dot />
+              <Feature label="Live ladder" />
+              <Dot />
+              <Feature label="Win streaks" />
+            </div>
+          </div>
+          <Button className="w-full" onClick={() => setStep(1)}>
+            Create your player card
+          </Button>
+          <button
+            onClick={quickStart}
+            className="mt-3 w-full text-center text-sm font-medium text-white/45 underline-offset-4 hover:underline"
           >
-            <div className="flex flex-1 flex-col justify-center">
-              <h2 className="font-display text-3xl font-semibold text-white">Create your account</h2>
-              <p className="mt-1 text-sm text-white/45">
-                Test mode — type anything (or leave it blank) and tap Continue.
-              </p>
+            Just looking? Skip for now
+          </button>
+        </motion.div>
+      )}
 
-              <div className="mt-6 flex rounded-pill bg-white/[0.05] p-1">
-                {(['email', 'phone'] as const).map((m) => (
+      {/* ── Step 1 — Player card ── */}
+      {step === 1 && (
+        <motion.div
+          key="card"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-1 flex-col"
+        >
+          <div className="flex-1 overflow-y-auto no-scrollbar py-5">
+            <h2 className="font-display text-3xl font-semibold tracking-tightest text-white">
+              Your player card
+            </h2>
+            <p className="mt-1 text-sm text-white/45">
+              Add a photo and your name — this is how you show up courtside.
+            </p>
+
+            {/* photo */}
+            <div className="mt-7 flex flex-col items-center">
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="relative active:scale-95 transition-transform"
+                aria-label="Add photo"
+              >
+                <Avatar player={preview} size={112} ring={accent} />
+                <span
+                  className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full border-2 border-ink text-ink"
+                  style={{ background: accent }}
+                >
+                  {busy ? <Spinner /> : <CameraIcon />}
+                </span>
+              </button>
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
+              <div className="mt-3 flex items-center gap-3">
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="text-sm font-semibold text-lime"
+                >
+                  {avatarUrl ? 'Change photo' : 'Add a photo'}
+                </button>
+                {avatarUrl && (
                   <button
-                    key={m}
-                    onClick={() => setMode(m)}
-                    className={cn(
-                      'flex-1 rounded-pill py-2.5 text-sm font-semibold capitalize transition-colors',
-                      mode === m ? 'bg-lime text-ink' : 'text-white/50'
-                    )}
+                    onClick={() => setAvatarUrl(null)}
+                    className="text-sm font-medium text-white/40"
                   >
-                    {m === 'email' ? 'Email' : 'Phone OTP'}
+                    Remove
                   </button>
-                ))}
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {mode === 'email' ? (
-                  <>
-                    <Field label="Email">
-                      <input
-                        type="email"
-                        inputMode="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="input"
-                      />
-                    </Field>
-                    <Field label="Password">
-                      <input
-                        type="password"
-                        placeholder="At least 6 characters"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="input"
-                      />
-                    </Field>
-                  </>
-                ) : (
-                  <>
-                    <Field label="Mobile number">
-                      <div className="flex gap-2">
-                        <input
-                          type="tel"
-                          inputMode="tel"
-                          placeholder="082 123 4567"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="input flex-1"
-                        />
-                        <Button
-                          variant="ghost"
-                          className="!h-[52px] shrink-0 !px-4"
-                          onClick={() => {
-                            setOtpSent(true);
-                            haptic(15);
-                          }}
-                        >
-                          {otpSent ? 'Resend' : 'Send code'}
-                        </Button>
-                      </div>
-                    </Field>
-                    {otpSent && (
-                      <Field label="Enter the 4-digit code">
-                        <input
-                          inputMode="numeric"
-                          maxLength={4}
-                          placeholder="1234"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                          className="input tracking-[0.5em] text-center text-lg"
-                        />
-                        <p className="mt-1.5 text-xs text-white/30">
-                          Demo: any 4 digits work.
-                        </p>
-                      </Field>
-                    )}
-                  </>
                 )}
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button variant="ghost" className="!px-6" onClick={() => setStep(0)}>
-                Back
-              </Button>
-              <Button className="flex-1" disabled={!authValid} onClick={() => setStep(2)}>
-                Continue
-              </Button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* ── Step 2 — Profile ── */}
-        {step === 2 && (
-          <motion.div
-            key="profile"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-1 flex-col"
-          >
-            <div className="flex-1 overflow-y-auto no-scrollbar py-4">
-              <h2 className="font-display text-3xl font-semibold text-white">Your player card</h2>
-              <p className="mt-1 text-sm text-white/45">This is how you show up on the courts.</p>
-
-              {/* avatar */}
-              <div className="mt-6 flex items-center gap-4">
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="relative"
-                  aria-label="Upload avatar"
-                >
-                  <Avatar
-                    player={{ id: 'me-preview', name: name || 'You', emoji: avatarUrl ? '' : emoji, avatarUrl }}
-                    size={72}
-                    ring="rgba(214,255,0,0.6)"
+            {/* accent picker */}
+            <div className="mt-6">
+              <span className="mb-2 block text-xs font-medium text-white/45">Accent colour</span>
+              <div className="flex flex-wrap gap-2.5">
+                {ACCENTS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => {
+                      setAccent(c);
+                      haptic(6);
+                    }}
+                    aria-label={`Accent ${c}`}
+                    className={cn(
+                      'h-8 w-8 rounded-full transition-transform active:scale-90',
+                      accent === c ? 'ring-2 ring-white ring-offset-2 ring-offset-ink' : ''
+                    )}
+                    style={{ background: c }}
                   />
-                  <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-lime text-ink text-xs">
-                    ✎
-                  </span>
-                </button>
-                <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
-                <div className="flex flex-wrap gap-1.5">
-                  {EMOJIS.map((e) => (
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <Field label="Full name">
+                <input
+                  placeholder="e.g. Ruan Bester"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="ob-input"
+                />
+              </Field>
+              <Field label="Nickname (on court)">
+                <input
+                  placeholder="e.g. Bessie"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  className="ob-input"
+                />
+              </Field>
+              <Field label="Skill level">
+                <div className="grid grid-cols-3 gap-2">
+                  {SKILLS.map((s) => (
                     <button
-                      key={e}
-                      onClick={() => {
-                        setEmoji(e);
-                        setAvatarUrl(null);
-                      }}
+                      key={s}
+                      onClick={() => setSkill(s)}
                       className={cn(
-                        'grid h-9 w-9 place-items-center rounded-full text-lg transition-transform active:scale-90',
-                        emoji === e && !avatarUrl ? 'bg-lime/20 ring-1 ring-lime' : 'bg-white/[0.05]'
+                        'rounded-2xl border py-3 text-xs font-semibold transition-colors',
+                        skill === s
+                          ? 'border-lime bg-lime/10 text-lime'
+                          : 'border-white/10 bg-white/[0.03] text-white/50'
                       )}
                     >
-                      {e}
+                      {s}
                     </button>
                   ))}
                 </div>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                <Field label="Full name">
-                  <input
-                    placeholder="Ruan Bester"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="input"
-                  />
-                </Field>
-                <Field label="Nickname (on court)">
-                  <input
-                    placeholder="Bessie"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    className="input"
-                  />
-                </Field>
-                <Field label="Skill level">
-                  <div className="grid grid-cols-3 gap-2">
-                    {SKILLS.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setSkill(s)}
-                        className={cn(
-                          'rounded-2xl border py-3 text-xs font-semibold transition-colors',
-                          skill === s
-                            ? 'border-lime bg-lime/10 text-lime'
-                            : 'border-white/10 bg-white/[0.03] text-white/50'
-                        )}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </Field>
-              </div>
+              </Field>
             </div>
+          </div>
 
-            <div className="flex gap-3 pt-2">
-              <Button variant="ghost" className="!px-6" onClick={() => setStep(1)}>
-                Back
-              </Button>
-              <Button className="flex-1" onClick={finish}>
-                Enter the league →
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </div>
-
-      <style jsx global>{`
-        .input {
-          width: 100%;
-          height: 52px;
-          border-radius: 16px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          padding: 0 16px;
-          color: #fff;
-          font-size: 15px;
-          outline: none;
-          transition: border-color 0.15s;
-        }
-        .input:focus {
-          border-color: rgba(214, 255, 0, 0.5);
-        }
-        .input::placeholder {
-          color: rgba(255, 255, 255, 0.3);
-        }
-      `}</style>
+          <div className="flex gap-3 pt-2">
+            <Button variant="ghost" className="!px-6" onClick={() => setStep(0)}>
+              Back
+            </Button>
+            <Button className="flex-1" onClick={finish}>
+              Enter the league →
+            </Button>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
 
-function Feature({ icon, label }: { icon: string; label: string }) {
-  return (
-    <div className="flex items-center gap-1.5 text-xs">
-      <span className="text-base">{icon}</span>
-      <span>{label}</span>
-    </div>
-  );
+function Feature({ label }: { label: string }) {
+  return <span className="text-xs font-medium">{label}</span>;
 }
-
+function Dot() {
+  return <span className="h-1 w-1 rounded-full bg-white/20" />;
+}
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
@@ -368,3 +255,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
+const CameraIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path d="M4 8h3l1.5-2h7L17 8h3v11H4z" strokeLinejoin="round" />
+    <circle cx="12" cy="13" r="3.2" />
+  </svg>
+);
+const Spinner = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth={2.5}>
+    <path d="M12 3a9 9 0 1 0 9 9" strokeLinecap="round" />
+  </svg>
+);

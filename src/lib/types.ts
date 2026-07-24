@@ -12,7 +12,8 @@ export interface Player {
   nickname: string;
   skill: SkillLevel;
   emoji: string;
-  avatarUrl?: string | null; // optional uploaded avatar (data URL in demo)
+  avatarUrl?: string | null; // uploaded photo (downscaled data URL)
+  accent?: string | null; // chosen accent colour for the monogram avatar
   rating: number;
 
   // All-time record
@@ -20,6 +21,7 @@ export interface Player {
   losses: number;
   points: number;
   streak: number; // current win streak (resets on loss)
+  bestStreak: number; // longest win streak ever
 
   // Tonight-only record (reset when the night is reset)
   tonightWins: number;

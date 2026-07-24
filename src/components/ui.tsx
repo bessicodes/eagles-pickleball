@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence, type HTMLMotionProps } from 'framer-motion';
 import { useEffect, type ReactNode } from 'react';
-import { avatarGradient, cn, initials } from '@/lib/utils';
+import { accentFor, cn, initials, monogramBg } from '@/lib/utils';
 import type { Player } from '@/lib/types';
 
 // ── Glass card ───────────────────────────────────────────────────────
@@ -63,26 +63,23 @@ export function Avatar({
   size = 40,
   ring,
 }: {
-  player?: Pick<Player, 'id' | 'name' | 'emoji' | 'avatarUrl'> | null;
+  player?: Pick<Player, 'id' | 'name' | 'avatarUrl' | 'accent'> | null;
   size?: number;
   ring?: string;
 }) {
   const s = { width: size, height: size };
   if (!player) {
-    return (
-      <div
-        style={s}
-        className="rounded-full bg-white/[0.06] border border-white/[0.08]"
-      />
-    );
+    return <div style={s} className="rounded-full bg-white/[0.06] border border-white/[0.08]" />;
   }
+  const accent = accentFor(player.id, player.accent);
   const inner = player.avatarUrl ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={player.avatarUrl} alt={player.name} className="h-full w-full object-cover" />
-  ) : player.emoji ? (
-    <span style={{ fontSize: size * 0.5 }}>{player.emoji}</span>
   ) : (
-    <span style={{ fontSize: size * 0.36 }} className="font-semibold text-white/90">
+    <span
+      style={{ fontSize: Math.max(11, size * 0.38) }}
+      className="font-display font-semibold tracking-tight text-white"
+    >
       {initials(player.name)}
     </span>
   );
@@ -90,8 +87,8 @@ export function Avatar({
     <div
       style={{
         ...s,
-        background: player.avatarUrl ? undefined : avatarGradient(player.id),
-        boxShadow: ring ? `0 0 0 2px ${ring}` : undefined,
+        background: player.avatarUrl ? '#17171b' : monogramBg(accent),
+        boxShadow: ring ? `0 0 0 2px ${ring}` : 'inset 0 0 0 1px rgba(255,255,255,0.08)',
       }}
       className="grid place-items-center overflow-hidden rounded-full shrink-0"
     >

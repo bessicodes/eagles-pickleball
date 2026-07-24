@@ -13,7 +13,7 @@ export function zar(cents: number): string {
   return Number.isInteger(rand) ? `R${rand}` : `R${rand.toFixed(2)}`;
 }
 
-/** Deterministic hash from a string (for stable avatar gradients). */
+/** Deterministic hash from a string (for stable avatar accents). */
 export function hash(str: string): number {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
@@ -23,12 +23,37 @@ export function hash(str: string): number {
   return Math.abs(h);
 }
 
-/** Two-stop gradient derived from an id — used for letter avatars. */
-export function avatarGradient(id: string): string {
-  const h = hash(id);
-  const a = h % 360;
-  const b = (a + 40 + (h % 60)) % 360;
-  return `linear-gradient(135deg, hsl(${a} 70% 45%), hsl(${b} 75% 30%))`;
+/** Curated accent palette — intentional, not random rainbow. */
+export const ACCENTS = [
+  '#D6FF00', // lime
+  '#8A5CFF', // violet
+  '#22D3EE', // cyan
+  '#FB7185', // rose
+  '#F59E0B', // amber
+  '#34D399', // emerald
+  '#60A5FA', // blue
+  '#F472B6', // pink
+];
+
+export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.replace(/(.)/g, '$1$1') : h, 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+export function withAlpha(hex: string, a: number): string {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+/** Stable accent for a player (their choice, else a deterministic palette pick). */
+export function accentFor(seed: string, chosen?: string | null): string {
+  return chosen || ACCENTS[hash(seed) % ACCENTS.length];
+}
+
+/** Dark monogram tile tinted with the accent — clean, real, not template-y. */
+export function monogramBg(accent: string): string {
+  return `radial-gradient(120% 120% at 28% 20%, ${withAlpha(accent, 0.42)}, #17171b 68%)`;
 }
 
 /** Initials from a display name. */
@@ -71,4 +96,75 @@ export function ago(ts: number): string {
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}m ago`;
   return `${Math.floor(m / 60)}h ago`;
+}
+
+/**
+ * Turn an uploaded image File into a small, centre-cropped square data URL.
+ * Downscaling is essential: raw phone photos would blow the localStorage
+ * quota and break persistence. Output is ~30–80 KB JPEG.
+ */
+export function fileToSquareDataUrl(file: File, size = 400, quality = 0.85): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) return reject(new Error('Not an image'));
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      try {
+        const side = Math.min(img.naturalWidth, img.naturalHeight);
+        const sx = (img.naturalWidth - side) / 2;
+        const sy = (img.naturalHeight - side) / 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject(new Error('Canvas unsupported'));
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      } catch (e) {
+        reject(e as Error);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read image'));
+    };
+    img.src = url;
+  });
+}
+
+// ── Player tiers (level system based on all-time points) ─────────────
+export interface Tier {
+  name: string;
+  min: number;
+  color: string;
+}
+const TIERS: Tier[] = [
+  { name: 'Rookie', min: 0, color: '#9CA3AF' },
+  { name: 'Contender', min: 25, color: '#34D399' },
+  { name: 'Challenger', min: 75, color: '#22D3EE' },
+  { name: 'Pro', min: 150, color: '#8A5CFF' },
+  { name: 'Elite', min: 300, color: '#D6FF00' },
+];
+
+export function tierFor(points: number): {
+  name: string;
+  color: string;
+  min: number;
+  next: Tier | null;
+  progress: number;
+  toNext: number;
+} {
+  let current = TIERS[0];
+  let next: Tier | null = TIERS[1] ?? null;
+  for (let i = 0; i < TIERS.length; i++) {
+    if (points >= TIERS[i].min) {
+      current = TIERS[i];
+      next = TIERS[i + 1] ?? null;
+    }
+  }
+  const ceil = next ? next.min : current.min;
+  const progress = next ? Math.min(1, (points - current.min) / (ceil - current.min)) : 1;
+  return { name: current.name, color: current.color, min: current.min, next, progress, toNext: next ? next.min - points : 0 };
 }
