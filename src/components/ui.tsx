@@ -35,8 +35,8 @@ export function Button({
   ...rest
 }: HTMLMotionProps<'button'> & { variant?: ButtonVariant; children?: ReactNode }) {
   const styles: Record<ButtonVariant, string> = {
-    lime: 'bg-lime text-ink shadow-lime',
-    violet: 'bg-violet text-white shadow-violet',
+    lime: 'bg-lime text-ink',
+    violet: 'bg-violet text-white',
     ghost: 'bg-white/[0.06] text-white border border-white/[0.1]',
     dark: 'bg-ink/80 text-white border border-white/[0.08]',
   };
@@ -45,7 +45,7 @@ export function Button({
       whileTap={{ scale: disabled ? 1 : 0.97 }}
       disabled={disabled}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-pill px-5 font-semibold',
+        'inline-flex items-center justify-center gap-2 rounded-[10px] px-5 font-semibold',
         'h-12 min-h-12 text-[15px] transition-opacity disabled:opacity-40',
         styles[variant],
         className
@@ -120,7 +120,7 @@ export function SkillChip({ skill }: { skill: Player['skill'] }) {
     Advanced: 'text-lime bg-lime/10',
   } as const;
   return (
-    <span className={cn('rounded-pill px-2 py-0.5 text-[10px] font-semibold', map[skill])}>
+    <span className={cn('rounded-md px-2 py-0.5 text-[10px] font-semibold', map[skill])}>
       {skill}
     </span>
   );
@@ -157,7 +157,7 @@ export function Sheet({
         >
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
           <motion.div
-            className="glass relative w-full max-w-app rounded-t-[28px] px-5 pt-3 pb-safe"
+            className="panel-blur relative w-full max-w-app rounded-t-2xl px-5 pt-3 pb-safe"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}

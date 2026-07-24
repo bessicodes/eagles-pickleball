@@ -32,7 +32,7 @@ const config: Config = {
         tightest: '-0.03em',
       },
       borderRadius: {
-        card: '24px',
+        card: '12px',
         pill: '999px',
       },
       maxWidth: {

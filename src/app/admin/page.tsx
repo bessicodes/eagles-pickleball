@@ -33,7 +33,7 @@ export default function AdminPage() {
             inputMode="numeric"
             maxLength={6}
             placeholder="••••"
-            className="mt-4 h-14 w-full rounded-2xl border border-white/10 bg-white/[0.05] text-center text-2xl tracking-[0.4em] text-white outline-none focus:border-lime/50"
+            className="mt-4 h-14 w-full rounded-xl border border-white/10 bg-white/[0.05] text-center text-2xl tracking-[0.4em] text-white outline-none focus:border-lime/50"
           />
           <Button
             className="mt-4 w-full"
@@ -105,7 +105,7 @@ function AdminConsole() {
         </div>
         <Link
           href="/"
-          className="rounded-pill bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white"
+          className="rounded-md bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white"
         >
           App →
         </Link>
@@ -144,12 +144,12 @@ function AdminConsole() {
             value={walkName}
             onChange={(e) => setWalkName(e.target.value)}
             placeholder="Walk-in name"
-            className="h-12 flex-1 rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm text-white outline-none focus:border-lime/50"
+            className="h-12 flex-1 rounded-xl border border-white/10 bg-white/[0.05] px-4 text-sm text-white outline-none focus:border-lime/50"
           />
           <select
             value={walkSkill}
             onChange={(e) => setWalkSkill(e.target.value as SkillLevel)}
-            className="h-12 rounded-2xl border border-white/10 bg-char px-3 text-sm text-white outline-none"
+            className="h-12 rounded-xl border border-white/10 bg-char px-3 text-sm text-white outline-none"
           >
             <option>Beginner</option>
             <option>Intermediate</option>
@@ -189,7 +189,7 @@ function AdminConsole() {
         {units.length === 0 && <Empty text="Queue empty." />}
         <div className="space-y-1.5">
           {units.map((u, i) => (
-            <div key={u.id} className="flex items-center gap-3 rounded-2xl bg-white/[0.03] p-2">
+            <div key={u.id} className="flex items-center gap-3 rounded-xl bg-white/[0.03] p-2">
               <span className="w-5 text-center text-xs font-bold text-white/40">{i + 1}</span>
               <div className="flex -space-x-2">
                 {u.playerIds.map((id) => (
@@ -211,7 +211,7 @@ function AdminConsole() {
       <Section title={`Paid list (${paid.length})`}>
         <div className="space-y-1.5">
           {paid.map((r) => (
-            <div key={r.playerId} className="flex items-center gap-3 rounded-2xl bg-white/[0.03] p-2">
+            <div key={r.playerId} className="flex items-center gap-3 rounded-xl bg-white/[0.03] p-2">
               <Avatar player={pMap[r.playerId]} size={30} />
               <span className="text-sm text-white/80">{pMap[r.playerId]?.name}</span>
               <span className="ml-auto text-xs text-emerald-300">
@@ -239,7 +239,7 @@ function OverrideRow({
   const [a, setA] = useState(11);
   const [b, setB] = useState(9);
   return (
-    <div className="rounded-2xl bg-white/[0.03] p-3">
+    <div className="rounded-xl bg-white/[0.03] p-3">
       <p className="mb-2 text-[10px] uppercase tracking-wider text-white/30">Court {court}</p>
       <div className="flex items-center gap-2">
         <span className="min-w-0 flex-1 truncate text-sm text-white">{teamA}</span>
@@ -272,7 +272,7 @@ function OverrideRow({
 
 function Kpi({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="glass rounded-2xl p-3 text-center">
+    <div className="glass rounded-xl p-3 text-center">
       <p className="font-display text-2xl font-bold text-lime">{value}</p>
       <p className="text-[10px] text-white/40">{label}</p>
     </div>
@@ -289,5 +289,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Empty({ text }: { text: string }) {
-  return <p className="rounded-2xl bg-white/[0.02] py-4 text-center text-sm text-white/30">{text}</p>;
+  return <p className="rounded-xl bg-white/[0.02] py-4 text-center text-sm text-white/30">{text}</p>;
 }

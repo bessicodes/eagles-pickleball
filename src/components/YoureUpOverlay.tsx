@@ -60,7 +60,7 @@ export default function YoureUpOverlay() {
               <br />
               UP
             </h1>
-            <div className="mt-5 inline-flex items-center gap-2 rounded-pill bg-lime px-6 py-2.5">
+            <div className="mt-5 inline-flex items-center gap-2 rounded-lg bg-lime px-6 py-2.5">
               <span className="font-display text-2xl font-bold text-ink">COURT {match.courtId}</span>
             </div>
 
@@ -98,7 +98,7 @@ export default function YoureUpOverlay() {
               haptic(20);
               dismiss();
             }}
-            className="absolute inset-x-6 bottom-[max(env(safe-area-inset-bottom),24px)] mx-auto h-14 max-w-app rounded-pill bg-lime font-bold text-ink shadow-lime"
+            className="absolute inset-x-6 bottom-[max(env(safe-area-inset-bottom),24px)] mx-auto h-14 max-w-app rounded-[10px] bg-lime font-bold text-ink"
           >
             Let&apos;s go 🎾
           </motion.button>

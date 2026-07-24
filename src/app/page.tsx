@@ -13,6 +13,7 @@ import CourtsTab from '@/components/CourtsTab';
 import LeaderboardTab from '@/components/LeaderboardTab';
 import ProfileTab from '@/components/ProfileTab';
 import YoureUpOverlay from '@/components/YoureUpOverlay';
+import PlayerProfileOverlay from '@/components/PlayerProfileOverlay';
 import { Avatar } from '@/components/ui';
 
 export default function Page() {
@@ -115,11 +116,11 @@ export default function Page() {
             </div>
             <div className="flex items-center gap-2">
               {me.streak >= 2 && (
-                <span className="rounded-pill bg-orange-500/15 px-2.5 py-1 text-xs font-semibold text-orange-300">
+                <span className="rounded-md bg-orange-500/15 px-2.5 py-1 text-xs font-semibold text-orange-300">
                   🔥 {me.streak}
                 </span>
               )}
-              <span className="rounded-pill bg-white/[0.05] px-3 py-1 text-xs font-semibold text-white">
+              <span className="rounded-md bg-white/[0.05] px-3 py-1 text-xs font-semibold text-white">
                 {me.points} <span className="text-white/40">pts</span>
               </span>
             </div>
@@ -145,6 +146,7 @@ export default function Page() {
 
       <BottomNav active={tab} onChange={setTab} />
       <YoureUpOverlay />
+      <PlayerProfileOverlay />
     </>
   );
 }

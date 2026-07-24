@@ -55,7 +55,7 @@ export default function BottomNav({
   return (
     <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center">
       <div className="pointer-events-auto mx-3 mb-[max(env(safe-area-inset-bottom),12px)] w-full max-w-app">
-        <div className="glass flex items-stretch justify-around rounded-pill px-2 py-2">
+        <div className="panel-blur flex items-stretch justify-around rounded-2xl px-2 py-2">
           {TABS.map((t) => {
             const isActive = active === t.key;
             return (
@@ -71,7 +71,7 @@ export default function BottomNav({
                 {isActive && (
                   <motion.span
                     layoutId="tab-pill"
-                    className="absolute inset-0 rounded-pill bg-lime/12"
+                    className="absolute inset-0 rounded-lg bg-lime/12"
                     transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                   />
                 )}

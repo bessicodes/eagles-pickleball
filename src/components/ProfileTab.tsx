@@ -105,7 +105,7 @@ export default function ProfileTab() {
                 {me.nickname}
               </h1>
               {me.streak >= 2 && (
-                <span className="shrink-0 rounded-pill bg-orange-500/15 px-2 py-0.5 text-xs font-semibold text-orange-300">
+                <span className="shrink-0 rounded-md bg-orange-500/15 px-2 py-0.5 text-xs font-semibold text-orange-300">
                   🔥 {me.streak}
                 </span>
               )}
@@ -114,7 +114,7 @@ export default function ProfileTab() {
             <div className="mt-1.5 flex flex-wrap items-center gap-2">
               <SkillChip skill={me.skill} />
               <span
-                className="rounded-pill px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                className="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
                 style={{ background: `${tier.color}22`, color: tier.color }}
               >
                 {tier.name}
@@ -192,7 +192,7 @@ export default function ProfileTab() {
             <div
               key={a.id}
               className={cn(
-                'rounded-2xl border p-3 text-center',
+                'rounded-xl border p-3 text-center',
                 a.earned
                   ? 'border-lime/30 bg-lime/[0.06]'
                   : 'border-white/[0.06] bg-white/[0.02] opacity-55'
@@ -399,7 +399,7 @@ function EditProfileSheet({ open, onClose, me }: { open: boolean; onClose: () =>
                 key={s}
                 onClick={() => setSkill(s)}
                 className={cn(
-                  'rounded-2xl border py-3 text-xs font-semibold transition-colors',
+                  'rounded-xl border py-3 text-xs font-semibold transition-colors',
                   skill === s
                     ? 'border-lime bg-lime/10 text-lime'
                     : 'border-white/10 bg-white/[0.03] text-white/50'
@@ -421,7 +421,7 @@ function EditProfileSheet({ open, onClose, me }: { open: boolean; onClose: () =>
 
 function Stat({ value, label, accent }: { value: string | number; label: string; accent?: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-2 py-3 text-center">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-2 py-3 text-center">
       <p className={cn('font-display text-xl font-bold tabular', accent ? 'text-lime' : 'text-white')}>
         {value}
       </p>

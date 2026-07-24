@@ -43,13 +43,21 @@ body {
   color: rgba(244, 244, 245, 0.45);
 }
 
-/* Glass surface primitive. */
+/* Panel surface — solid charcoal, hairline border, crisp (no frosted glass). */
 .glass {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.7);
+  background: #141417;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    0 8px 24px -18px rgba(0, 0, 0, 0.9);
+}
+
+/* Slightly translucent variant for overlays that sit above content. */
+.panel-blur {
+  background: rgba(17, 17, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* Safe-area helpers for the iPhone notch / home indicator. */
@@ -124,10 +132,10 @@ select {
 .ob-input {
   width: 100%;
   height: 52px;
-  border-radius: 16px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0 16px;
+  padding: 0 14px;
   color: #fff;
   font-size: 15px;
   outline: none;

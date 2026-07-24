@@ -84,7 +84,7 @@ export default function Onboarding() {
           className="flex flex-1 flex-col"
         >
           <div className="flex flex-1 flex-col justify-center">
-            <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-pill border border-white/10 bg-white/[0.04] px-3 py-1.5">
+            <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-lime animate-pulseDot" />
               <span className="eyebrow !text-white/60">Northcliff · Mondays &amp; Wednesdays</span>
             </div>
@@ -213,7 +213,7 @@ export default function Onboarding() {
                       key={s}
                       onClick={() => setSkill(s)}
                       className={cn(
-                        'rounded-2xl border py-3 text-xs font-semibold transition-colors',
+                        'rounded-xl border py-3 text-xs font-semibold transition-colors',
                         skill === s
                           ? 'border-lime bg-lime/10 text-lime'
                           : 'border-white/10 bg-white/[0.03] text-white/50'

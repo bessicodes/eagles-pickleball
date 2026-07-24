@@ -37,7 +37,7 @@ export default function CourtsTab() {
             4 courts live
           </h1>
         </div>
-        <span className="rounded-pill bg-white/[0.05] px-3 py-1.5 text-xs text-white/50">
+        <span className="rounded-md bg-white/[0.05] px-3 py-1.5 text-xs text-white/50">
           {matches.filter((m) => m.status === 'live').length}/4 in play
         </span>
       </div>
@@ -69,7 +69,7 @@ function CourtCard({
 
   return (
     <Card
-      className={cn('overflow-hidden p-4', mine && 'ring-1 ring-lime shadow-lime')}
+      className={cn('overflow-hidden p-4', mine && 'ring-1 ring-lime')}
       transition={{ delay, type: 'spring', stiffness: 320, damping: 30 }}
     >
       <div className="mb-3 flex items-center justify-between">
@@ -114,6 +114,7 @@ function CourtCard({
 
 function TeamRow({ match, which }: { match: Match; which: 'A' | 'B' }) {
   const pMap = useStore(playersMap);
+  const viewPlayer = useStore((s) => s.viewPlayer);
   const team = which === 'A' ? match.teamA : match.teamB;
   const players = team.map((id) => pMap[id]).filter(Boolean) as Player[];
 
@@ -121,7 +122,17 @@ function TeamRow({ match, which }: { match: Match; which: 'A' | 'B' }) {
     <div className="flex items-center gap-3">
       <div className="flex -space-x-2">
         {players.map((p) => (
-          <Avatar key={p.id} player={p} size={38} ring="#141416" />
+          <button
+            key={p.id}
+            onClick={() => {
+              haptic(6);
+              viewPlayer(p.id);
+            }}
+            className="active:scale-90 transition-transform"
+            aria-label={`View ${p.nickname}`}
+          >
+            <Avatar player={p} size={38} ring="#141416" />
+          </button>
         ))}
       </div>
       <div className="min-w-0 flex-1">
@@ -174,7 +185,7 @@ function ScoreSheet({ matchId, onClose }: { matchId: string | null; onClose: () 
       <div className="my-2 text-center font-display text-xs font-bold text-white/30">VS</div>
       <Stepper label={teamBName} value={b} onChange={setB} accent="violet" />
 
-      <div className="mt-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 text-center text-sm">
+      <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center text-sm">
         {a === b ? (
           <span className="text-amber-300">Games can&apos;t end in a tie.</span>
         ) : (
@@ -225,7 +236,7 @@ function Stepper({
     onChange(Math.max(0, Math.min(21, n)));
   };
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
+    <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
       <span className="min-w-0 flex-1 truncate pr-2 text-sm font-semibold text-white">{label}</span>
       <div className="flex items-center gap-3">
         <button

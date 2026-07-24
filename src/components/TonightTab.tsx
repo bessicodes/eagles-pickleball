@@ -116,7 +116,7 @@ export default function TonightTab() {
         <button
           onClick={() => setRequested(null)}
           className={cn(
-            'mb-3 flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-colors',
+            'mb-3 flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors',
             requested === null ? 'border-lime bg-lime/10' : 'border-white/10 bg-white/[0.03]'
           )}
         >
@@ -128,7 +128,7 @@ export default function TonightTab() {
           {requested === null && <Check />}
         </button>
 
-        <div className="mb-2 flex items-center gap-2 rounded-2xl bg-white/[0.05] px-3">
+        <div className="mb-2 flex items-center gap-2 rounded-xl bg-white/[0.05] px-3">
           <SearchIcon />
           <input
             value={search}
@@ -153,7 +153,7 @@ export default function TonightTab() {
                   setRequested(active ? null : p.id);
                 }}
                 className={cn(
-                  'flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition-colors',
+                  'flex w-full items-center gap-3 rounded-xl border p-2.5 text-left transition-colors',
                   active ? 'border-violet bg-violet/10' : 'border-white/[0.06] bg-white/[0.02]'
                 )}
               >
@@ -169,7 +169,7 @@ export default function TonightTab() {
                 </div>
                 <span
                   className={cn(
-                    'shrink-0 rounded-pill px-2 py-1 text-[10px] font-semibold',
+                    'shrink-0 rounded-md px-2 py-1 text-[10px] font-semibold',
                     playing ? 'bg-white/[0.06] text-white/45' : 'bg-lime/10 text-lime'
                   )}
                 >
@@ -226,7 +226,7 @@ function NightCard({
   return (
     <Card className="overflow-hidden p-0" transition={{ delay, type: 'spring', stiffness: 320, damping: 30 }}>
       <div className="relative p-5">
-        <div className="absolute right-4 top-4 rounded-pill bg-lime px-3 py-1 text-sm font-bold text-ink">
+        <div className="absolute right-4 top-4 rounded-md bg-lime px-3 py-1 text-sm font-bold text-ink">
           {zar(night.entryCents)}
         </div>
         <p className="eyebrow">{night.dateLabel}</p>
@@ -314,7 +314,7 @@ function PaymentSheet({
         ) : (
           <motion.div key="form" exit={{ opacity: 0 }}>
             {/* order summary */}
-            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
               <Row label={night.label} value={zar(night.entryCents)} />
               <Row label={`${night.dateLabel} · ${night.time}`} muted />
               {partner ? (
@@ -334,7 +334,7 @@ function PaymentSheet({
                   key={pr}
                   onClick={() => setProvider(pr)}
                   className={cn(
-                    'rounded-2xl border py-3.5 text-sm font-semibold capitalize transition-colors',
+                    'rounded-xl border py-3.5 text-sm font-semibold capitalize transition-colors',
                     provider === pr
                       ? 'border-lime bg-lime/10 text-lime'
                       : 'border-white/10 bg-white/[0.03] text-white/55'
@@ -375,6 +375,7 @@ function StatusAndQueue({ nightId }: { nightId: string }) {
   const pMap = useStore(playersMap);
   const units = useStore(queueUnits);
   const myMatch = useStore(userLiveMatch);
+  const viewPlayer = useStore((s) => s.viewPlayer);
   const reg = useStore((s) => userRegistration(s, nightId));
   const partnerId = reg?.partnerId ?? null;
 
@@ -388,7 +389,7 @@ function StatusAndQueue({ nightId }: { nightId: string }) {
       <Card className="p-5">
         <div className="flex items-center justify-between">
           <Eyebrow live>My status</Eyebrow>
-          <span className="rounded-pill bg-lime/12 px-2.5 py-1 text-xs font-semibold text-lime">
+          <span className="rounded-md bg-lime/12 px-2.5 py-1 text-xs font-semibold text-lime">
             ✓ Checked in
           </span>
         </div>
@@ -415,7 +416,7 @@ function StatusAndQueue({ nightId }: { nightId: string }) {
           </div>
         )}
 
-        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
           {partnerId ? (
             <>
               <Avatar player={pMap[partnerId]} size={36} />
@@ -463,7 +464,7 @@ function StatusAndQueue({ nightId }: { nightId: string }) {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 12 }}
                     className={cn(
-                      'flex items-center gap-3 rounded-2xl border p-2.5',
+                      'flex items-center gap-3 rounded-xl border p-2.5',
                       mine ? 'border-lime/50 bg-lime/[0.06]' : 'border-white/[0.06] bg-white/[0.02]'
                     )}
                   >
@@ -477,7 +478,17 @@ function StatusAndQueue({ nightId }: { nightId: string }) {
                     </span>
                     <div className="flex -space-x-2">
                       {u.playerIds.map((id) => (
-                        <Avatar key={id} player={pMap[id]} size={34} ring="#141416" />
+                        <button
+                          key={id}
+                          onClick={() => {
+                            haptic(6);
+                            viewPlayer(id);
+                          }}
+                          className="active:scale-90 transition-transform"
+                          aria-label={`View ${pMap[id]?.nickname}`}
+                        >
+                          <Avatar player={pMap[id]} size={34} ring="#141416" />
+                        </button>
                       ))}
                     </div>
                     <div className="min-w-0 flex-1">

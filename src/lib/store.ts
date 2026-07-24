@@ -70,6 +70,7 @@ interface State {
   // Transient UI signals (not persisted)
   youreUpMatchId: string | null;
   celebrate: { token: number; won: boolean } | null;
+  viewingPlayerId: string | null; // public profile currently open
 
   // ── Actions ──
   hydrate: () => void;
@@ -98,6 +99,8 @@ interface State {
 
   dismissYoureUp: () => void;
   clearCelebrate: () => void;
+  viewPlayer: (id: string) => void;
+  closePlayerView: () => void;
 
   // Admin
   addWalkIn: (name: string, skill: Player['skill']) => void;
@@ -235,6 +238,7 @@ export const useStore = create<State>()(
       initialized: false,
       youreUpMatchId: null,
       celebrate: null,
+      viewingPlayerId: null,
 
       // First-run bootstrap: seed players/nights and start a lively Monday.
       hydrate: () => {
@@ -582,6 +586,8 @@ export const useStore = create<State>()(
 
       dismissYoureUp: () => set({ youreUpMatchId: null }),
       clearCelebrate: () => set({ celebrate: null }),
+      viewPlayer: (id) => set({ viewingPlayerId: id }),
+      closePlayerView: () => set({ viewingPlayerId: null }),
 
       // ── Admin ──
       addWalkIn: (name, skill) => {

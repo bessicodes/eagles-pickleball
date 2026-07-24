@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore, board, type BoardRow } from '@/lib/store';
 import type { BoardKey } from '@/lib/types';
 import { Avatar, Eyebrow } from './ui';
-import { cn } from '@/lib/utils';
+import { cn, haptic } from '@/lib/utils';
 
 const TABS: { key: BoardKey; label: string }[] = [
   { key: 'tonight', label: 'Tonight' },
@@ -29,17 +29,17 @@ export default function LeaderboardTab() {
       </div>
 
       {/* segmented control */}
-      <div className="mt-4 flex rounded-pill bg-white/[0.05] p-1">
+      <div className="mt-4 flex rounded-lg bg-white/[0.05] p-1">
         {TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className="relative flex-1 rounded-pill py-2.5 text-sm font-semibold"
+            className="relative flex-1 rounded-lg py-2.5 text-sm font-semibold"
           >
             {tab === t.key && (
               <motion.span
                 layoutId="board-pill"
-                className="absolute inset-0 rounded-pill bg-lime"
+                className="absolute inset-0 rounded-lg bg-lime"
                 transition={{ type: 'spring', stiffness: 380, damping: 32 }}
               />
             )}
@@ -74,7 +74,7 @@ export default function LeaderboardTab() {
       {/* sticky current-user row */}
       {myRow && (
         <div className="sticky bottom-0 pt-2">
-          <div className="rounded-2xl border border-lime/40 bg-lime/[0.08] p-0.5 backdrop-blur-xl">
+          <div className="rounded-xl border border-lime/40 bg-lime/[0.08] p-0.5 backdrop-blur-xl">
             <Row row={myRow} highlight compact />
           </div>
         </div>
@@ -92,6 +92,7 @@ function Row({
   highlight?: boolean;
   compact?: boolean;
 }) {
+  const viewPlayer = useStore((s) => s.viewPlayer);
   const rankColor =
     row.rank === 1
       ? 'text-lime'
@@ -106,8 +107,13 @@ function Row({
       layout={!compact}
       initial={compact ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
+      onClick={() => {
+        haptic(6);
+        viewPlayer(row.player.id);
+      }}
+      role="button"
       className={cn(
-        'flex items-center gap-3 rounded-2xl p-2.5',
+        'flex cursor-pointer items-center gap-3 rounded-xl p-2.5 active:opacity-80',
         highlight && !compact ? 'bg-lime/[0.06]' : !compact ? 'bg-white/[0.02]' : ''
       )}
     >
